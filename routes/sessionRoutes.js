@@ -11,4 +11,7 @@ router.get('/all', sessionController.getSessions);
 // Mettre à jour le statut d'une session
 router.put('/update-status', sessionController.updateSessionStatus);
 
+// Supprimer une session
+router.delete('/:sessionId', sessionController.deleteSession);
+
 module.exports = router;
