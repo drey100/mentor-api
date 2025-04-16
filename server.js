@@ -24,6 +24,7 @@ const mentorRoutes = require('./routes/mentorRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const miscRoutes = require('./routes/miscRoutes');
 
 // Définir les routes
 app.use('/api/auth', authRoutes);
@@ -32,6 +33,7 @@ app.use('/api/mentors', mentorRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/misc', miscRoutes);
 
 // Configuration Swagger
 const swaggerUi = require('swagger-ui-express');
