@@ -55,6 +55,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Middleware de gestion des erreurs
 app.use(errorHandler);
 
+
+app.get('/', (req, res) => {
+  res.send('Bienvenue sur l’API de mentorat ');
+});
+
+
 // Démarrer le serveur
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
