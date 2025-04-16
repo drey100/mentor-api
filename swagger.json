@@ -1,93 +1,533 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Mentor API",
-      "description": "Documentation de l'API Mentor",
-      "version": "1.0.0"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Mentor API",
+    "description": "Documentation complète de l'API Mentor",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Serveur local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Endpoints d'authentification"
     },
-    "servers": [
-      {
-        "url": "http://localhost:5000",
-        "description": "Serveur local"
+    {
+      "name": "Users",
+      "description": "Endpoints des utilisateurs"
+    },
+    {
+      "name": "Mentors",
+      "description": "Endpoints des mentors"
+    },
+    {
+      "name": "Sessions",
+      "description": "Endpoints des sessions"
+    },
+    {
+      "name": "Messages",
+      "description": "Endpoints des messages"
+    },
+    {
+      "name": "Reviews",
+      "description": "Endpoints des avis"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
-    ],
-    "tags": [
-      {
-        "name": "Auth",
-        "description": "Endpoints d'authentification"
-      },
-      {
-        "name": "Users",
-        "description": "Endpoints des utilisateurs"
-      },
-      {
-        "name": "Mentors",
-        "description": "Endpoints des mentors"
-      },
-      {
-        "name": "Sessions",
-        "description": "Endpoints des sessions"
-      },
-      {
-        "name": "Messages",
-        "description": "Endpoints des messages"
-      },
-      {
-        "name": "Reviews",
-        "description": "Endpoints des avis"
+    }
+  },
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Inscription d'un utilisateur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "format": "password" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Utilisateur enregistré avec succès."
+          },
+          "400": {
+            "description": "Erreur lors de l'inscription (email déjà utilisé)."
+          }
+        }
       }
-    ],
-    "paths": {
-      "/api/auth/register": {
-        "post": {
-          "tags": ["Auth"],
-          "summary": "Inscription d'un utilisateur",
-          "requestBody": {
-            "required": true,
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Connexion d'un utilisateur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "format": "password" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token JWT renvoyé.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "name": { "type": "string" },
-                    "email": { "type": "string" },
-                    "password": { "type": "string" }
+                    "token": { "type": "string" }
                   }
                 }
               }
             }
           },
-          "responses": {
-            "201": {
-              "description": "Utilisateur enregistré avec succès"
-            }
+          "401": {
+            "description": "Identifiants incorrects."
+          }
+        }
+      }
+    },
+    "/api/users/{userId}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Récupérer un utilisateur par ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de l'utilisateur"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Utilisateur récupéré avec succès."
+          },
+          "401": {
+            "description": "Authentification requise."
+          },
+          "403": {
+            "description": "Accès refusé. Vous n'êtes pas autorisé à accéder à ce profil."
+          },
+          "404": {
+            "description": "Utilisateur non trouvé."
           }
         }
       },
-      "/api/auth/login": {
-        "post": {
-          "tags": ["Auth"],
-          "summary": "Connexion d'un utilisateur",
-          "requestBody": {
+      "put": {
+        "tags": ["Users"],
+        "summary": "Mettre à jour un utilisateur",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
             "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "email": { "type": "string" },
-                    "password": { "type": "string" }
-                  }
+            "schema": { "type": "string" },
+            "description": "ID de l'utilisateur"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "email": { "type": "string", "format": "email" },
+                  "bio": { "type": "string" }
                 }
               }
             }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Utilisateur mis à jour avec succès."
           },
-          "responses": {
-            "200": {
-              "description": "Token JWT renvoyé"
+          "401": {
+            "description": "Authentification requise."
+          },
+          "403": {
+            "description": "Accès refusé. Vous n'êtes pas autorisé à modifier ce profil."
+          },
+          "404": {
+            "description": "Utilisateur non trouvé."
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Supprimer un utilisateur",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de l'utilisateur"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Utilisateur supprimé avec succès."
+          },
+          "401": {
+            "description": "Authentification requise."
+          },
+          "403": {
+            "description": "Accès refusé. Vous n'êtes pas autorisé à supprimer ce compte."
+          },
+          "404": {
+            "description": "Utilisateur non trouvé."
+          }
+        }
+      }
+    },
+    "/api/mentors/create-profile": {
+      "post": {
+        "tags": ["Mentors"],
+        "summary": "Créer un profil de mentor",
+        "security": [{ "bearerAuth": [] }],
+        "description": "Seuls les utilisateurs ayant le rôle 'mentor' peuvent créer un profil.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expertise": { "type": "string" },
+                  "bio": { "type": "string" }
+                }
+              }
             }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Profil de mentor créé avec succès."
+          },
+          "400": {
+            "description": "Vous avez déjà un profil de mentor."
+          },
+          "401": {
+            "description": "Authentification requise."
+          },
+          "403": {
+            "description": "Accès refusé. Rôle non autorisé."
+          }
+        }
+      }
+    },
+    "/api/sessions": {
+      "post": {
+        "tags": ["Sessions"],
+        "summary": "Créer une session",
+        "security": [{ "bearerAuth": [] }],
+        "description": "Seuls les utilisateurs ayant le rôle 'mentor' peuvent créer une session.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mentorId": { "type": "string" },
+                  "userId": { "type": "string" },
+                  "title": { "type": "string" },
+                  "description": { "type": "string" },
+                  "date": { "type": "string", "format": "date-time" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Session créée avec succès."
+          },
+          "400": {
+            "description": "Données invalides."
+          },
+          "401": {
+            "description": "Authentification requise."
+          },
+          "403": {
+            "description": "Accès refusé. Rôle non autorisé."
+          },
+          "404": {
+            "description": "Mentor ou utilisateur non trouvé."
+          }
+        }
+      },
+      "get": {
+        "tags": ["Sessions"],
+        "summary": "Récupérer toutes les sessions",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Filtrer par ID utilisateur",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "mentorId",
+            "in": "query",
+            "description": "Filtrer par ID mentor",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Numéro de page (pagination)",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Nombre de résultats par page",
+            "schema": { "type": "integer", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des sessions récupérée avec succès."
+          },
+          "401": {
+            "description": "Authentification requise."
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}": {
+      "put": {
+        "tags": ["Sessions"],
+        "summary": "Mettre à jour une session",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de la session"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "description": { "type": "string" },
+                  "date": { "type": "string", "format": "date-time" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Session mise à jour avec succès."
+          },
+          "400": {
+            "description": "Mise à jour non autorisée."
+          },
+          "401": {
+            "description": "Authentification requise."
+          },
+          "403": {
+            "description": "Accès refusé. Vous n'êtes pas autorisé à modifier cette session."
+          },
+          "404": {
+            "description": "Session non trouvée."
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Sessions"],
+        "summary": "Supprimer une session",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de la session"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session supprimée avec succès."
+          },
+          "401": {
+            "description": "Authentification requise."
+          },
+          "403": {
+            "description": "Accès refusé. Vous n'êtes pas autorisé à supprimer cette session."
+          },
+          "404": {
+            "description": "Session non trouvée."
+          }
+        }
+      }
+    },
+    "/api/messages": {
+      "post": {
+        "tags": ["Messages"],
+        "summary": "Envoyer un message",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sessionId": { "type": "string" },
+                  "content": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message envoyé avec succès."
+          },
+          "400": {
+            "description": "Données invalides."
+          },
+          "401": {
+            "description": "Authentification requise."
+          },
+          "404": {
+            "description": "Session non trouvée."
+          }
+        }
+      },
+      "get": {
+        "tags": ["Messages"],
+        "summary": "Récupérer tous les messages d'une session",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de la session"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messages récupérés avec succès."
+          },
+          "401": {
+            "description": "Authentification requise."
+          },
+          "404": {
+            "description": "Session non trouvée."
+          }
+        }
+      }
+    },
+    "/api/reviews": {
+      "post": {
+        "tags": ["Reviews"],
+        "summary": "Laisser un avis",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mentorId": { "type": "string" },
+                  "rating": { "type": "number" },
+                  "comment": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Avis créé avec succès."
+          },
+          "400": {
+            "description": "Données invalides."
+          },
+          "401": {
+            "description": "Authentification requise."
+          },
+          "404": {
+            "description": "Mentor non trouvé."
+          }
+        }
+      },
+      "get": {
+        "tags": ["Reviews"],
+        "summary": "Récupérer tous les avis pour un mentor",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "mentorId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID du mentor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Avis récupérés avec succès."
+          },
+          "401": {
+            "description": "Authentification requise."
+          },
+          "404": {
+            "description": "Mentor non trouvé."
           }
         }
       }
     }
   }
+}

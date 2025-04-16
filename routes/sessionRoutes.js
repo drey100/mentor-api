@@ -1,17 +1,21 @@
 const express = require('express');
-const sessionController = require('../controllers/sessionController');
+const sessionController = require('../controllers/sessionController'); // Assurez-vous que ce chemin est correct
+const { authenticate, authorizeRole } = require('../middleware/authMiddleware'); // Assurez-vous que ce chemin est correct
 const router = express.Router();
 
-// Créer une nouvelle session
-router.post('/create', sessionController.createSession);
+// Créer une session (réservé aux mentors)
+router.post('/', authenticate, authorizeRole(['mentor']), sessionController.createSession);
 
-// Récupérer les sessions d'un utilisateur ou d'un mentor
-router.get('/all', sessionController.getSessions);
+// Récupérer toutes les sessions
+router.get('/', authenticate, sessionController.getSessions);
+
+// Mettre à jour une session
+router.put('/:sessionId', authenticate, sessionController.updateSession);
 
 // Mettre à jour le statut d'une session
-router.put('/update-status', sessionController.updateSessionStatus);
+router.patch('/:sessionId/status', authenticate, sessionController.updateSessionStatus);
 
 // Supprimer une session
-router.delete('/:sessionId', sessionController.deleteSession);
+router.delete('/:sessionId', authenticate, sessionController.deleteSession);
 
 module.exports = router;

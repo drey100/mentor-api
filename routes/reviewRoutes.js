@@ -1,11 +1,18 @@
 const express = require('express');
 const reviewController = require('../controllers/reviewController');
+const { authenticate } = require('../middleware/authMiddleware');
 const router = express.Router();
 
-// Créer un avis
-router.post('/create', reviewController.createReview);
+// Laisser un avis
+router.post('/', authenticate, reviewController.createReview);
 
-// Récupérer les avis d'une session
-router.get('/:sessionId/reviews', reviewController.getReviewsBySession);
+// Récupérer tous les avis pour un mentor
+router.get('/mentor/:mentorId', authenticate, reviewController.getReviewsByMentor);
+
+// Mettre à jour un avis (seul l'auteur de l'avis peut le modifier)
+router.put('/:reviewId', authenticate, reviewController.updateReview);
+
+// Supprimer un avis (seul l'auteur de l'avis peut le supprimer)
+router.delete('/:reviewId', authenticate, reviewController.deleteReview);
 
 module.exports = router;

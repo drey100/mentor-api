@@ -1,20 +1,18 @@
 const Message = require('../models/Message');
-const Session = require('../models/Session');
 
-// Créer un nouveau message
-exports.createMessage = async (req, res) => {
+// Envoyer un message
+exports.sendMessage = async (req, res) => {
   try {
-    const { sessionId, senderId, content } = req.body;
+    const { sessionId, content } = req.body;
+    const userId = req.user._id; // ID de l'utilisateur connecté
 
-    // Vérifier si la session existe
-    const session = await Session.findById(sessionId);
-    if (!session) return res.status(404).json({ error: 'Session non trouvée.' });
-
-    const message = new Message({ session: sessionId, sender: senderId, content });
+    // Créer le message
+    const message = new Message({ session: sessionId, user: userId, content });
     await message.save();
-    res.status(201).json({ message: 'Message créé avec succès.', message });
+
+    res.status(201).json({ message: 'Message envoyé avec succès.', message });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -23,11 +21,29 @@ exports.getMessagesBySession = async (req, res) => {
   try {
     const { sessionId } = req.params;
 
-    const messages = await Message.find({ session: sessionId })
-      .populate('sender', 'name email')
-      .sort({ timestamp: 1 });
-
+    const messages = await Message.find({ session: sessionId }).populate('user', 'name email');
     res.json({ messages });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Supprimer un message
+exports.deleteMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.user._id; // ID de l'utilisateur connecté
+
+    const message = await Message.findById(messageId);
+    if (!message) return res.status(404).json({ error: 'Message non trouvé.' });
+
+    // Vérifier que l'utilisateur connecté est l'auteur du message
+    if (message.user.toString() !== userId.toString()) {
+      return res.status(403).json({ error: 'Vous n\'êtes pas autorisé à supprimer ce message.' });
+    }
+
+    await Message.findByIdAndDelete(messageId);
+    res.json({ message: 'Message supprimé avec succès.' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -5,6 +5,9 @@ const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorHandler');
 
+// Importez les middlewares d'authentification
+const { authenticate, authorizeRole } = require('./middleware/authMiddleware'); // Ajout ici
+
 // Charger les variables d'environnement
 dotenv.config();
 
@@ -26,14 +29,21 @@ const messageRoutes = require('./routes/messageRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const miscRoutes = require('./routes/miscRoutes');
 
-// Définir les routes
+// Définir les routes publiques
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/mentors', mentorRoutes);
-app.use('/api/sessions', sessionRoutes);
-app.use('/api/messages', messageRoutes);
-app.use('/api/reviews', reviewRoutes);
+
+// Définir les routes protégées par authentification
+app.use('/api/users', authenticate, userRoutes); // Toutes les routes utilisateur nécessitent une authentification
+app.use('/api/mentors', authenticate, mentorRoutes); // Toutes les routes mentor nécessitent une authentification
+app.use('/api/sessions', authenticate, sessionRoutes); // Toutes les routes session nécessitent une authentification
+app.use('/api/messages', authenticate, messageRoutes); // Toutes les routes message nécessitent une authentification
+app.use('/api/reviews', authenticate, reviewRoutes); // Toutes les routes avis nécessitent une authentification
 app.use('/api/misc', miscRoutes);
+
+// Exemple d'utilisation de `authorizeRole` pour une route spécifique
+app.post('/api/mentors/create-profile', authenticate, authorizeRole(['mentor']), (req, res) => {
+  res.json({ message: "Cette route est réservée aux mentors." });
+});
 
 // Configuration Swagger
 const swaggerUi = require('swagger-ui-express');
