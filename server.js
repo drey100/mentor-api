@@ -4,9 +4,12 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorHandler');
+const cors = require('cors')
+
+app.use(cors());
 
 // Importez les middlewares d'authentification
-const { authenticate, authorizeRole } = require('./middleware/authMiddleware'); // Ajout ici
+const { authenticate, authorizeRole } = require('./middleware/authMiddleware'); 
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -16,6 +19,8 @@ const app = express();
 
 // Middleware pour parser le JSON
 app.use(express.json());
+
+
 
 // Connexion à la base de données MongoDB
 connectDB();
@@ -33,11 +38,11 @@ const miscRoutes = require('./routes/miscRoutes');
 app.use('/api/auth', authRoutes);
 
 // Définir les routes protégées par authentification
-app.use('/api/users', authenticate, userRoutes); // Toutes les routes utilisateur nécessitent une authentification
-app.use('/api/mentors', authenticate, mentorRoutes); // Toutes les routes mentor nécessitent une authentification
-app.use('/api/sessions', authenticate, sessionRoutes); // Toutes les routes session nécessitent une authentification
-app.use('/api/messages', authenticate, messageRoutes); // Toutes les routes message nécessitent une authentification
-app.use('/api/reviews', authenticate, reviewRoutes); // Toutes les routes avis nécessitent une authentification
+app.use('/api/users', authenticate, userRoutes); 
+app.use('/api/mentors', authenticate, mentorRoutes); 
+app.use('/api/sessions', authenticate, sessionRoutes); 
+app.use('/api/messages', authenticate, messageRoutes); 
+app.use('/api/reviews', authenticate, reviewRoutes); 
 app.use('/api/misc', miscRoutes);
 
 // Exemple d'utilisation de `authorizeRole` pour une route spécifique
@@ -47,7 +52,7 @@ app.post('/api/mentors/create-profile', authenticate, authorizeRole(['mentor']),
 
 // Configuration Swagger
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger.json'); // Assurez-vous que ce chemin est correct
+const swaggerDocument = require('./swagger.json'); 
 
 // Route pour servir la documentation Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
