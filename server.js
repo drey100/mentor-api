@@ -26,7 +26,7 @@ const corsOptions = {
 };
 
 //Activer le cors
-app.use(cors());
+app.use(cors(corsOptions));
 
 // Middleware pour parser le JSON
 app.use(express.json());
