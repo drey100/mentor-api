@@ -6,7 +6,7 @@ const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorHandler');
 const cors = require('cors')
 
-app.use(cors());
+
 
 // Importez les middlewares d'authentification
 const { authenticate, authorizeRole } = require('./middleware/authMiddleware'); 
@@ -16,6 +16,9 @@ dotenv.config();
 
 // Initialiser Express
 const app = express();
+
+//Activer le cors
+app.use(cors());
 
 // Middleware pour parser le JSON
 app.use(express.json());
