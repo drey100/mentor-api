@@ -17,10 +17,10 @@ const app = express();
 
 // Configurer CORS
 const corsOptions = {
-  origin: ['http://127.0.0.1:5500', 'https://api-e6jn.onrender.com'], // remplace par ton vrai domaine front déployé
+  origin: ['http://127.0.0.1:5500', 'https://tanguy.onrender.com'], // remplace par ton vrai domaine front déployé
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 // Activer le CORS
