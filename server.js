@@ -19,7 +19,8 @@ const app = express();
 
 // Configurer CORS
 const corsOptions = {
-  origin: '*', // Autorise toutes les origines
+  origin: ['http://127.0.0.1:5500', 'https://api-e6jn.onrender.com'],
+  Credentials:true, // Autorise toutes les origines
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Méthodes HTTP autorisées
   allowedHeaders: ['Content-Type', 'Authorization'], // En-têtes autorisés
 };
