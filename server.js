@@ -1,13 +1,12 @@
 // Importer les dépendances nécessaires
 const express = require('express');
 const dotenv = require('dotenv');
-const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorHandler');
 const cors = require('cors');
 
-// Importez les middlewares d'authentification
-const { authenticate, authorizeRole } = require('./middleware/authMiddleware'); 
+// Middlewares d'auth
+const { authenticate, authorizeRole } = require('./middleware/authMiddleware');
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -22,21 +21,16 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
-
-// Activer le CORS
 app.use(cors(corsOptions));
 
 // Middleware pour parser le JSON
 app.use(express.json());
 
-// Logger simple (utile pour déboguer)
+// Logger simple
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.url}`);
   next();
 });
-
-// Connexion à MongoDB
-connectDB();
 
 // Importer les routes
 const authRoutes = require('./routes/authRoutes');
@@ -47,15 +41,13 @@ const messageRoutes = require('./routes/messageRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const miscRoutes = require('./routes/miscRoutes');
 
-// Définir les routes publiques
+// Définir les routes
 app.use('/api/auth', authRoutes);
-
-// Routes protégées par l'authentification
-app.use('/api/users', authenticate, userRoutes); 
-app.use('/api/mentors', authenticate, mentorRoutes); 
-app.use('/api/sessions', authenticate, sessionRoutes); 
-app.use('/api/messages', authenticate, messageRoutes); 
-app.use('/api/reviews', authenticate, reviewRoutes); 
+app.use('/api/users', authenticate, userRoutes);
+app.use('/api/mentors', authenticate, mentorRoutes);
+app.use('/api/sessions', authenticate, sessionRoutes);
+app.use('/api/messages', authenticate, messageRoutes);
+app.use('/api/reviews', authenticate, reviewRoutes);
 app.use('/api/misc', miscRoutes);
 
 // Route spéciale pour les mentors
@@ -76,8 +68,20 @@ app.get('/', (req, res) => {
   res.send('Bienvenue sur l’API de mentorat');
 });
 
-// Lancer le serveur
+// Fonction principale pour lancer le serveur après connexion à la base
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(` Serveur démarré sur le port ${PORT}`);
-});
+
+const startServer = async () => {
+  try {
+    await connectDB(); // Connexion à MongoDB Atlas
+    console.log(' Connexion à MongoDB réussie');
+    app.listen(PORT, () => {
+      console.log(`Serveur démarré sur le port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Échec de la connexion à la base de données', error.message);
+    process.exit(1); // Stoppe le serveur si la base ne se connecte pas
+  }
+};
+
+startServer(); // Appelle la fonction pour lancer tout ça
